@@ -38,9 +38,8 @@ class Round:
 	def __init__(self, match):
 		self.match = match
 		def _setup_tokens(player):
-			tkns = []
-			for (side_1, side_2) in player.tokens:
-				tkns.append((side_1, side_2, -1))
+			tkns = zip(player.tokens, [-1] * len(player.tokens))
+			tkns = [(a, b, c) for ((a,b),c) in tkns]
 			return tkns
 		self.p1_tokens = _setup_tokens(match.player1)
 		self.p2_tokens = _setup_tokens(match.player2)
@@ -49,7 +48,7 @@ class Round:
 	def both_cast_tokens(self):
 		def _cast_all(token_list):
 			for i, tkn in enumerate(self.p1_tokens):
-				token_list[i] = (tkn[:2] , random.randint(1, 2))
+				token_list[i] = (*tkn[:2] , random.randint(1, 2))
 		_cast_all(self.p1_tokens)
 		_cast_all(self.p2_tokens)
 

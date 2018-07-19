@@ -20,9 +20,8 @@ class Player:
 
 	def add_token(self, token):
 		"""Adds a combat token to the player's collection.
-
 		Args:
-			token: A tuple formatted as ((token_type, value), (token_type, value))
+			token: A tuple formatted containing two TokenSide instances.
 		"""
 		self.tokens.append(token)
 
