@@ -7,7 +7,7 @@ class Player:
 		self.current_hp = current_hp
 		self.setup_abilities = setup_abilities
 		self.surge_abilities = surge_abilities
-		self.tokens = []
+		self.token_sides = []
 	
 
 	def restore_hp(self, amount):
@@ -18,10 +18,10 @@ class Player:
 		self.current_hp = max(0, self.current_hp - amount)
 
 
-	def add_token(self, token):
+	def add_token(self, token_sides):
 		"""Adds a combat token to the player's collection.
 		Args:
-			token: A tuple formatted containing two TokenSide instances.
+			token (tuple<TokenSide>): A tuple with length 2 containing the two sides of the token.
 		"""
-		self.tokens.append(token)
+		self.token_sides.append(token_sides)
 
