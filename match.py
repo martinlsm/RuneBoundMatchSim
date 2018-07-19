@@ -66,4 +66,9 @@ class Round:
 		self.tokens[target][target_token_index].flip()
 		self.tokens[caster][spent_token_index].spend()
 
-
+	def damage_token(self, caster, target, spent_token_indices):
+		dmg_tokens = [self.tokens[caster][i] for i in spent_token_indices]
+		cat = dmg_tokens[0].get_current_side().token_type
+		if cat != token.DMG_PHYS and cat != token.DMG_MAGIC and cat != token.DMG_SKULL:
+			raise ValueError('Not a valid damage type')
+		self.match.players[target].reduce_hp(sum(dmg_tokens))

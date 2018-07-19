@@ -40,4 +40,19 @@ class Token:
 
 	def spend(self):
 		self.active_side = -1
-		
+
+	
+	def __add__(self, other):
+		if self.active_side == -1 or other.active_side == -1:
+			raise ValueError('Tokens must be cast before added.')
+		tkn1 = self.sides[self.active_side]
+		if type(other) == int:
+			return tkn1.value + other
+		tkn2 = other.sides[other.active_side]
+		if tkn1.token_type != tkn2.token_type:
+			raise ValueError('Can not add token sides from different categories.')
+		return tkn1.value + tkn2.value
+
+
+	def __radd__(self, other):
+		return self.__add__(other)
