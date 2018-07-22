@@ -3,10 +3,8 @@ import random
 import token
 
 def validate_category(tokens, category):
-	print('tokens = {}'.format(tokens))
-	print('category = {}'.format(category))
 	for tkn in tokens:
-		if tkn.active_side in range(0, 1) and tkn.get_current_side().token_type == category:
+		if tkn.active_side in range(2) and tkn.get_current_side().token_type == category:
 			continue
 		return False
 	return True
@@ -83,7 +81,7 @@ class Round:
 				raise ValueError('The agility token cannot target itself.')
 			self.tokens[target][target_token_index].flip()
 		else:
-			self.tokens[target][target_token_index].cast()
+			self.tokens[target][target_token_index].cast(recast=True)
 		self.tokens[caster][spent_token_index].spend()
 
 
@@ -105,4 +103,11 @@ class Round:
 		self.match.players[target].reduce_hp(max(0, sum(dmg_tokens) - sum(block_tokens)))
 		for tkn in dmg_tokens + block_tokens:
 			tkn.spend()
+	
 
+	def double_token(self, caster, spent_token_index, target_token_index):
+		if validate_category([self.tokens[caster][spent_token_index]], token.DOUBLE) \
+	      and self.tokens[caster][target_token_index].active_side in range(2) \
+		  and target_token_index != spent_token_index:
+			self.tokens[caster][target_token_index].double()
+			self.tokens[caster][spent_token_index].spend()

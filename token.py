@@ -28,11 +28,11 @@ class Token:
 	SIDE1 = 1
 	UNCAST = -1
 	SPENT = -2
-	LOCKED = -3
 
 	def __init__(self, side1, side2):
 		self.sides = (side1, side2)
 		self.active_side = Token.UNCAST
+		self.double_factor = 1
 	
 	
 	def flip(self):
@@ -50,25 +50,36 @@ class Token:
 		return self.sides[self.active_side]
 	
 
-	def cast(self):
+	def cast(self, recast=False):
+		if recast and self.active_side != Token.SPENT:
+			raise ValueError('A spent token can not be recast.')
 		self.active_side = random.randint(0, 1)
-
+		self.double_factor = 1
+			
 
 	def spend(self):
 		self.active_side = Token.SPENT
+	
+	
+	def double(self):
+		self.double_factor *= 2
 
 	
+	def get_value(self):
+		return self.double_factor * self.sides[self.active_side].value
+	
+
 	def __add__(self, other):
-		if self.active_side in range(0, 1):
-			tkn1 = self.sides[self.active_side]
+		if self.active_side in range(2):
 			if type(other) == int:
-				return tkn1.value + other
+				return self.get_value() + other
+			tkn1 = self.sides[self.active_side]
 			tkn2 = other.sides[other.active_side]
-			if other.active_side not in range(0, 1):
+			if other.active_side not in range(2):
 				raise ValueError('Tokens must be cast before added.')
 			if tkn1.token_type != tkn2.token_type:
-				raise ValueError('Can not add token sides from different categories.')
-			return tkn1.value + tkn2.value
+				raise TypeError('Can not add token sides from different categories.')
+			return self.get_value() + other.get_value()
 		else:
 			raise ValueError('Token must be cast before added.')
 
