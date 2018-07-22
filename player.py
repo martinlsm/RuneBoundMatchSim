@@ -1,10 +1,12 @@
+import token
 
 
 class Player:
 
-	def __init__(self, max_hp, current_hp, setup_abilities, surge_abilities):
+	def __init__(self, name, max_hp, setup_abilities=[], surge_abilities=[]):
+		self.name = name
 		self.max_hp = max_hp
-		self.current_hp = current_hp
+		self.current_hp = max_hp
 		self.setup_abilities = setup_abilities
 		self.surge_abilities = surge_abilities
 		self.token_sides = []
@@ -25,3 +27,10 @@ class Player:
 		"""
 		self.token_sides.append(token_sides)
 
+
+class Enemy(Player):
+
+	def __init__(self, name, max_hp, setup_abilities=[], surge_abilities=[], act=1):
+		super().__init__(name, max_hp, setup_abilities, surge_abilities)
+		for sides in token.enemy_token_sides[0:4+act]:
+			super().add_token(sides)

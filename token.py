@@ -22,10 +22,6 @@ enemy_token_sides = [ \
 			  , (TokenSide(DMG_SKULL, 2, False), TokenSide(SURGE, 1, True)) \
 					]
 
-def generate_enemy_tokens(act_number):
-	return [Token(*sides) for sides in enemy_token_sides[0:act_number+4]]
-		
-
 class Token:
 
 	SIDE0 = 0
