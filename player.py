@@ -1,3 +1,5 @@
+import random
+
 import token
 
 
@@ -34,3 +36,28 @@ class Enemy(Player):
 		super().__init__(name, max_hp, setup_abilities, surge_abilities)
 		for sides in token.enemy_token_sides[0:4+act]:
 			super().add_token(sides)
+
+
+class Hero(Player):
+
+	BODY = 0
+	MIND = 1
+	SPIRIT = 2
+
+	def __init__(self, name, max_hp, setup_abilities=[], surge_abilities=[], attributes=[0,0,0], hand_size=0):
+		super().__init__(name, max_hp, setup_abilities, surge_abilities)
+		self.attributes = attributes
+		self.hand_size = hand_size
+
+
+	def attribute_test(self, stat_index):
+		return random.random() > 0.6**self.attributes[stat_index]
+	
+	
+	def exert(self):
+		if self.hand_size > 0:
+			self.hand_size -= 1
+			return True
+		else:
+			return False
+
