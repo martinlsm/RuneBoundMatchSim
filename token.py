@@ -64,9 +64,9 @@ class Token:
 	
 	def __add__(self, other):
 		if self.active_side in range(0, 1):
+			tkn1 = self.sides[self.active_side]
 			if type(other) == int:
 				return tkn1.value + other
-			tkn1 = self.sides[self.active_side]
 			tkn2 = other.sides[other.active_side]
 			if other.active_side not in range(0, 1):
 				raise ValueError('Tokens must be cast before added.')
@@ -79,3 +79,10 @@ class Token:
 
 	def __radd__(self, other):
 		return self.__add__(other)
+
+	
+	def __str__(self):
+		return 'Token({}, {}, {})'.format(*self.sides, self.active_side)
+	
+	def __repr__(self):
+		return self.__str__()

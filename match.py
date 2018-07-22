@@ -2,12 +2,29 @@ import random
 
 import token
 
+def validate_category(tokens, category):
+	print('tokens = {}'.format(tokens))
+	print('category = {}'.format(category))
+	for tkn in tokens:
+		if tkn.active_side in range(0, 1) and tkn.get_current_side().token_type == category:
+			continue
+		return False
+	return True
+
+
+def select_by_category(list_of_tokens, indices, category):
+	tkns_filtered = [list_of_tokens[i] for i in indices]
+	if not validate_category(tkns_filtered, category):
+		raise ValueError('At least one token is not of the right category "{}"'.format(category))
+	return tkns_filtered
+
 
 class Match:
 	
 	def __init__(self, player1, player2):
 		self.players = {1:player1 , 2:player2}
 	
+
 	def resolve_direct_abilites(self):
 		pass
 
@@ -59,16 +76,33 @@ class Round:
 			spent_token_index (int): The index of the token to be used.
 			target_token_index (int): The index of the token to be targeted.
 		"""
-		if self.tokens[caster][spent_token_index].get_current_side().token_type != token.AGILITY:
+		if not validate_category([self.tokens[caster][spent_token_index]], token.AGILITY):
 			raise ValueError('The spent token is not from the right category.')
-		if caster == target and spent_token_index == target_token_index:
+		if caster == target:
+			if spent_token_index == target_token_index:
 				raise ValueError('The agility token cannot target itself.')
-		self.tokens[target][target_token_index].flip()
+			self.tokens[target][target_token_index].flip()
+		else:
+			self.tokens[target][target_token_index].cast()
 		self.tokens[caster][spent_token_index].spend()
 
-	def damage_token(self, caster, target, spent_token_indices):
-		dmg_tokens = [self.tokens[caster][i] for i in spent_token_indices]
-		cat = dmg_tokens[0].get_current_side().token_type
-		if cat != token.DMG_PHYS and cat != token.DMG_MAGIC and cat != token.DMG_SKULL:
-			raise ValueError('Not a valid damage type')
-		self.match.players[target].reduce_hp(sum(dmg_tokens))
+
+	def damage_token(self, caster, spent_token_indices, dmg_category, target_block_indices=[], blockable=True):
+		"""Attempts to resolve a number of damage tokens of the same type to damage the opposing player.
+
+		Args:
+			caster (int): The index {1, 2} of the casting player.
+			spent_token_indices (list<int>): A list of the indices of the tokens to be used as damage source.
+			dmg_category (str): The constant (in token module) to be used as the damage type.
+			target_block_indices (list<int>): A list of the indices of the tokens to be used for blocking.
+			blockable (bool): True if the attack is blockable, otherwise false.
+		"""
+		target = 1 + (caster % 2)
+		dmg_tokens = select_by_category(self.tokens[caster], spent_token_indices, dmg_category)
+		block_tokens = []
+		if blockable:
+			block_tokens = select_by_category(self.tokens[target], target_block_indices, token.SHIELD)
+		self.match.players[target].reduce_hp(max(0, sum(dmg_tokens) - sum(block_tokens)))
+		for tkn in dmg_tokens + block_tokens:
+			tkn.spend()
+
