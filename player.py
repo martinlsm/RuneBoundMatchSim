@@ -33,7 +33,7 @@ class Player:
 class Enemy(Player):
 
 	def __init__(self, name, max_hp, setup_abilities=[], surge_abilities=[], act=1):
-		super().__init__(name, max_hp, setup_abilities, surge_abilities)
+		super().__init__(self, name, max_hp, setup_abilities, surge_abilities)
 		for sides in token.enemy_token_sides[0:4+act]:
 			super().add_token(sides)
 
@@ -44,10 +44,11 @@ class Hero(Player):
 	MIND = 1
 	SPIRIT = 2
 
-	def __init__(self, name, max_hp, setup_abilities=[], surge_abilities=[], attributes=[0,0,0], hand_size=0):
+	def __init__(self, name, max_hp, setup_abilities=[], surge_abilities=[], attributes=[0,0,0], hand_size=0, movespeed=3):
 		super().__init__(name, max_hp, setup_abilities, surge_abilities)
 		self.attributes = attributes
 		self.hand_size = hand_size
+		self.movespeed = movespeed
 
 
 	def attribute_test(self, stat_index):
