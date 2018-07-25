@@ -36,6 +36,7 @@ class SurgeAbility:
 			if not param_name in self.params:
 				continue
 			while self.params[param_name] == None:
+
 				yield param_name
 
 
@@ -110,3 +111,14 @@ class AbilityClaw(SurgeAbility):
 		for tkn in round_.tokens[target]:
 			if tkn.get_current_side() == Token.SHIELD:
 				tkn.remove()
+
+
+class MindMeld(SurgeAbility):
+
+	# Master Thorn
+	def __init__(self):
+		super().__init__('Mind Meld', param_headers=[], cost=2)
+
+	def effect(self, round_, caster):
+		#TODO
+		pass
