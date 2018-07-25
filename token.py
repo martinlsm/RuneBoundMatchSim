@@ -28,6 +28,7 @@ class Token:
 	SIDE1 = 1
 	UNCAST = -1
 	SPENT = -2
+	REMOVED = -3
 
 	def __init__(self, side1, side2):
 		self.sides = (side1, side2)
@@ -50,8 +51,8 @@ class Token:
 		return self.sides[self.active_side]
 	
 
-	def cast(self, recast=False):
-		if recast and self.active_side != Token.SPENT:
+	def cast(self, force=False):
+		if not force and self.active_side not in range(-1,2):
 			raise ValueError('A spent token can not be recast.')
 		self.active_side = random.randint(0, 1)
 		self.double_factor = 1
@@ -59,6 +60,10 @@ class Token:
 
 	def spend(self):
 		self.active_side = Token.SPENT
+
+	
+	def remove(self):
+		self.active_side = Token.REMOVED
 	
 	
 	def double(self):

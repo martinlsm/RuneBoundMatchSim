@@ -2,6 +2,10 @@ import random
 
 import token
 
+
+STATUS_SILENCED = 'silenced'
+
+
 def validate_category(tokens, category):
 	for tkn in tokens:
 		if tkn.active_side in range(2) and tkn.get_current_side().token_type == category:
@@ -55,6 +59,7 @@ class Round:
 		def _setup_tokens(player):
 			return [token.Token(*sides) for sides in player.token_sides]
 		self.tokens = {1:_setup_tokens(match.players[1]), 2:_setup_tokens(match.players[2])}
+		self.status_conditions = {1:[], 2:[]}
 
 
 	def both_cast_tokens(self):
@@ -63,6 +68,10 @@ class Round:
 				tkn.cast()
 		_cast_all(self.tokens[1])
 		_cast_all(self.tokens[2])
+
+
+	def apply_status_condition(player, status):
+		self.status_conditions[player] = status
 
 	
 	def agility_token(self, caster, target, spent_token_index, target_token_index):
@@ -111,3 +120,11 @@ class Round:
 		  and target_token_index != spent_token_index:
 			self.tokens[caster][target_token_index].double()
 			self.tokens[caster][spent_token_index].spend()
+
+	
+	def get_ability(self, caster, spent_token_indices, surge_index):
+		pc = self.match.players[caster]
+		ability = self.match.players[caster].surge_abilities[surge_index]
+		tkns = select_by_category(self.tokens[caster], spent_token_indices, token.SURGE)
+		if sum(tkns) >= ability.cost:
+			return ability

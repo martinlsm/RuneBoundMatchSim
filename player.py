@@ -33,7 +33,7 @@ class Player:
 class Enemy(Player):
 
 	def __init__(self, name, max_hp, setup_abilities=[], surge_abilities=[], act=1):
-		super().__init__(self, name, max_hp, setup_abilities, surge_abilities)
+		super().__init__(name, max_hp, setup_abilities, surge_abilities)
 		for sides in token.enemy_token_sides[0:4+act]:
 			super().add_token(sides)
 
