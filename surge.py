@@ -86,7 +86,7 @@ class AbilityRegenerate(SurgeAbility):
 		self.amount = amount
 
 	def effect(self, round_, caster):
-		round_.match.players[caster].restore_hp(self.amount)
+		round_.heal_player(caster, self.amount)
 
 
 class AbilityBreatheFire(SurgeAbility):
@@ -97,7 +97,7 @@ class AbilityBreatheFire(SurgeAbility):
 
 	def effect(self, round_, caster):
 		target = 1 + (caster % 2)
-		round_.match.players[target].reduce_hp(5)
+		round_.damage_player(target, 5, token.DMG_MAGIC)
 
 
 class AbilityClaw(SurgeAbility):
@@ -120,5 +120,9 @@ class MindMeld(SurgeAbility):
 		super().__init__('Mind Meld', param_headers=[], cost=2)
 
 	def effect(self, round_, caster):
-		#TODO
-		pass
+		target = 1 + (caster % 2)
+		def decorate_reflect(func):
+			def damage_players_wrapper(round_, player, amount, dmg_type):
+				func(round_, player, amount, dmg_type)
+				round_.damage_player(target, amount, token.DMG_MAGIC)
+		round_.damage_player = decorate_reflect(round_.damage_player)

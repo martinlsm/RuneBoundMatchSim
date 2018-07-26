@@ -70,6 +70,14 @@ class Round:
 		_cast_all(self.tokens[2])
 
 
+	def damage_player(self, player_index, amount, dmg_type):
+		self.players[player_index].reduce_hp(amount)
+
+	
+	def heal_player(self, player_index, amount):
+		self.players[player_index].restore_hp(amount)
+
+
 	def apply_status_condition(player, status):
 		self.status_conditions[player] = status
 
@@ -109,7 +117,7 @@ class Round:
 		block_tokens = []
 		if blockable:
 			block_tokens = select_by_category(self.tokens[target], target_block_indices, token.SHIELD)
-		self.match.players[target].reduce_hp(max(0, sum(dmg_tokens) - sum(block_tokens)))
+		self.damage_player(target, max(0, sum(dmg_tokens) - sum(block_tokens)), dmg_category)
 		for tkn in dmg_tokens + block_tokens:
 			tkn.spend()
 	
