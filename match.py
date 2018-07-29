@@ -1,6 +1,6 @@
 import random
 
-import token
+import tokens
 
 
 STATUS_SILENCED = 'silenced'
@@ -57,7 +57,7 @@ class Round:
 	def __init__(self, match):
 		self.match = match
 		def _setup_tokens(player):
-			return [token.Token(*sides) for sides in player.token_sides]
+			return [tokens.Token(*sides) for sides in player.token_sides]
 		self.tokens = {1:_setup_tokens(match.players[1]), 2:_setup_tokens(match.players[2])}
 		self.status_conditions = {1:[], 2:[]}
 
@@ -91,7 +91,7 @@ class Round:
 			spent_token_index (int): The index of the token to be used.
 			target_token_index (int): The index of the token to be targeted.
 		"""
-		if not validate_category([self.tokens[caster][spent_token_index]], token.AGILITY):
+		if not validate_category([self.tokens[caster][spent_token_index]], tokens.AGILITY):
 			raise ValueError('The spent token is not from the right category.')
 		if caster == target:
 			if spent_token_index == target_token_index:
@@ -116,14 +116,14 @@ class Round:
 		dmg_tokens = select_by_category(self.tokens[caster], spent_token_indices, dmg_category)
 		block_tokens = []
 		if blockable:
-			block_tokens = select_by_category(self.tokens[target], target_block_indices, token.SHIELD)
+			block_tokens = select_by_category(self.tokens[target], target_block_indices, tokens.SHIELD)
 		self.damage_player(target, max(0, sum(dmg_tokens) - sum(block_tokens)), dmg_category)
 		for tkn in dmg_tokens + block_tokens:
 			tkn.spend()
 	
 
 	def double_token(self, caster, spent_token_index, target_token_index):
-		if validate_category([self.tokens[caster][spent_token_index]], token.DOUBLE) \
+		if validate_category([self.tokens[caster][spent_token_index]], tokens.DOUBLE) \
 	      and self.tokens[caster][target_token_index].active_side in range(2) \
 		  and target_token_index != spent_token_index:
 			self.tokens[caster][target_token_index].double()
@@ -133,6 +133,6 @@ class Round:
 	def get_ability(self, caster, spent_token_indices, surge_index):
 		pc = self.match.players[caster]
 		ability = self.match.players[caster].surge_abilities[surge_index]
-		tkns = select_by_category(self.tokens[caster], spent_token_indices, token.SURGE)
+		tkns = select_by_category(self.tokens[caster], spent_token_indices, tokens.SURGE)
 		if sum(tkns) >= ability.cost:
 			return ability

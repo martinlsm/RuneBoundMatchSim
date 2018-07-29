@@ -1,4 +1,4 @@
-import token
+import tokens
 import match
 
 class SurgeAbilityException(Exception):
@@ -63,7 +63,7 @@ class AbilityRelentless(SurgeAbility):
 
 	def effect(self, round_, caster):
 		tkn = round_.tokens[caster]
-		if tkn.active_side != token.SPENT:
+		if tkn.active_side != tokens.SPENT:
 			raise SurgeAbilityException('Target token is not spent.')
 		tkn.recast(force=True)
 
@@ -97,7 +97,7 @@ class AbilityBreatheFire(SurgeAbility):
 
 	def effect(self, round_, caster):
 		target = 1 + (caster % 2)
-		round_.damage_player(target, 5, token.DMG_MAGIC)
+		round_.damage_player(target, 5, tokens.DMG_MAGIC)
 
 
 class AbilityClaw(SurgeAbility):
@@ -124,5 +124,5 @@ class MindMeld(SurgeAbility):
 		def decorate_reflect(func):
 			def damage_players_wrapper(round_, player, amount, dmg_type):
 				func(round_, player, amount, dmg_type)
-				round_.damage_player(target, amount, token.DMG_MAGIC)
+				round_.damage_player(target, amount, tokens.DMG_MAGIC)
 		round_.damage_player = decorate_reflect(round_.damage_player)

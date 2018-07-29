@@ -1,6 +1,6 @@
 from match import *
 from player import *
-from token import *
+from tokens import *
 
 
 def print_all_tokens(round_):
