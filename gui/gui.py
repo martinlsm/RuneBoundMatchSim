@@ -1,15 +1,78 @@
+import os
+
 from tkinter import *
 from tkinter import ttk
 from PIL import Image, ImageTk
 
+import tokens
 
-def create_token_img(file_front, file_back):
-	large_img = Image.open(file_front)
-	small_img = Image.open(file_back)
-	paste_loc = (large_img.size[0] - small_img.size[0], large_img.size[1] - small_img.size[1])
-	large_img.paste(small_img, box=(paste_loc), mask=small_img)
-	large_img = ImageTk.PhotoImage(large_img)
-	return large_img
+filename_tokens = { tokens.AGILITY : 'agility',
+					tokens.BLANK : 'blank',
+					tokens.DMG_MAGIC : 'magic',
+					tokens.DMG_PHYS : 'physical',
+					tokens.DMG_SKULL : 'skull',
+					tokens.DOUBLE : 'double',
+					tokens.SHIELD : 'shield',
+					tokens.SURGE : 'surge'}
+
+
+class TokenDisplay:
+
+	def __init__(self, parent, token_type_front, token_type_back, index, golden_front=False, golden_back=False):
+		self.canvas = Canvas(parent, width=72, height=72, bd=0, highlightthickness=0, relief='ridge')
+		self.canvas.configure(background='burlywood')
+		self.canvas.grid(row=int(index/2), column=index%2)
+
+		token_type_front = filename_tokens[token_type_front]
+		token_type_back = filename_tokens[token_type_back]
+		folder_path = 'gui/token-img'
+		front_big = os.path.join(folder_path, self.get_token_filename(token_type_front, golden_front, True))
+		front_small = os.path.join(folder_path, self.get_token_filename(token_type_front, golden_front, False))
+		back_big = os.path.join(folder_path, self.get_token_filename(token_type_back, golden_back, True))
+		back_small = os.path.join(folder_path, self.get_token_filename(token_type_back, golden_back, False))
+
+		self.images = (self.create_token_img(front_big, back_small), self.create_token_img(back_big, front_small))
+		self.active_side = 0
+
+	def flip(self):
+		self.active_side = (1 + self.active_side) % 2
+
+	def get_token_filename(self, token_type, is_golden, is_large):
+		filename = ''.join([filename_tokens[token_type], '-token'])
+		if not is_large:
+			filename = ''.join([filename, '-small'])
+		if is_golden:
+			filename = ''.join([filename, '-gold'])
+		return ''.join([filename, '.png'])
+
+	def create_token_img(self, file_front, file_back):
+		large_img = Image.open(file_front)
+		small_img = Image.open(file_back)
+		paste_loc = (large_img.size[0] - small_img.size[0], large_img.size[1] - small_img.size[1])
+		large_img.paste(small_img, box=(paste_loc), mask=small_img)
+		large_img = ImageTk.PhotoImage(large_img)
+		return large_img
+
+
+class GridOfTokens:
+
+	def __init__(self):
+		self.token_displays = []
+
+	def add_token_display(self, token_display):
+		self.token_displays.append(token_display)
+
+	def draw_all(self):
+		for tkn in self.token_displays:
+			tkn.canvas.delete(ALL)
+			tkn.canvas.create_image((8,8), image=tkn.images[tkn.active_side], anchor=NW)
+
+
+class AbilityButton:
+	pass
+
+class PlayerSide:
+	pass
 
 
 def apply_style():
@@ -47,10 +110,12 @@ if __name__ == '__main__':
 	frame_tokens = Frame(root)
 	frame_tokens.pack()
 	frame_tokens.configure(background='burlywood')
-	photo_both = create_token_img('gui/token-img/skull-token.png', 'gui/token-img/shield-token-small-gold.png')
 
+	tkn_grid = GridOfTokens()
 	for i in range(10):
-		ttk.Label(frame_tokens, image=photo_both).grid(row=int(i/2), column=i%2)
+		tkn_disp = TokenDisplay(frame_tokens, tokens.SURGE, tokens.SHIELD, i, golden_front=True)
+		tkn_grid.add_token_display(tkn_disp)
+	tkn_grid.draw_all()
 
 	for i in range(5):
 		ttk.Button(frame_tokens, text='{}: Ability'.format(i)).grid(row=i, column=3)
