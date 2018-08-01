@@ -22,6 +22,7 @@ class TokenDisplay:
 		self.canvas = Canvas(parent, width=72, height=72, bd=0, highlightthickness=0, relief='ridge')
 		self.canvas.configure(background='burlywood')
 		self.canvas.grid(row=int(index/2), column=index%2)
+		self.canvas.bind('<Button-1>', self.on_click)
 
 		token_type_front = filename_tokens[token_type_front]
 		token_type_back = filename_tokens[token_type_back]
@@ -34,8 +35,20 @@ class TokenDisplay:
 		self.images = (self.create_token_img(front_big, back_small), self.create_token_img(back_big, front_small))
 		self.active_side = 0
 
+	def draw(self):
+		self.canvas.delete(ALL)
+		self.canvas.create_image((8, 8), image=self.images[self.active_side], anchor=NW)
+
 	def flip(self):
 		self.active_side = (1 + self.active_side) % 2
+
+	def on_click(self, event):
+		# Check if click is within the circle shape
+		tkn_radius = 56 / 2
+		x_center = y_center = 72 / 2
+		if tkn_radius**2 >= (event.x - x_center)**2 + (event.y - y_center)**2:
+			self.flip()
+			self.draw()
 
 	def get_token_filename(self, token_type, is_golden, is_large):
 		filename = ''.join([filename_tokens[token_type], '-token'])
@@ -64,12 +77,18 @@ class GridOfTokens:
 
 	def draw_all(self):
 		for tkn in self.token_displays:
-			tkn.canvas.delete(ALL)
-			tkn.canvas.create_image((8,8), image=tkn.images[tkn.active_side], anchor=NW)
+			tkn.draw()
 
 
 class AbilityButton:
-	pass
+
+	def __init__(self, index):
+		self.btn = ttk.Button(frame_tokens, text='{}: Ability'.format(index), command=self.on_click)
+		self.btn.grid(row=index, column=3)
+		self.index = index
+
+	def on_click(self):
+		print('Ability {} activated!'.format(self.index))
 
 class PlayerSide:
 	pass
@@ -118,7 +137,7 @@ if __name__ == '__main__':
 	tkn_grid.draw_all()
 
 	for i in range(5):
-		ttk.Button(frame_tokens, text='{}: Ability'.format(i)).grid(row=i, column=3)
+		AbilityButton(i)
 
 	frame_low = Frame(root)
 	frame_low.pack()
