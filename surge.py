@@ -89,15 +89,15 @@ class AbilityRegenerate(SurgeAbility):
 		round_.heal_player(caster, self.amount)
 
 
-class AbilityBreatheFire(SurgeAbility):
+class AbilityDirectDamage(SurgeAbility):
 
-	# Dreadbringer 
-	def __init__(self):
-		super().__init__('Breathe Fire', [], cost=3)
+	def __init__(self, name, damage, cost):
+		super().__init__(name, [], cost)
+		self.damage = damage
 
 	def effect(self, round_, caster):
 		target = 1 + (caster % 2)
-		round_.damage_player(target, 5, tokens.DMG_MAGIC)
+		round_.damage_player(target, self.damage, tokens.DMG_MAGIC)
 
 
 class AbilityClaw(SurgeAbility):
@@ -127,3 +127,17 @@ class MindMeld(SurgeAbility):
 				round_.damage_player(target, amount, tokens.DMG_MAGIC)
 			return damage_players_wrapper
 		round_.damage_player = decorate_reflect(round_.damage_player)
+
+
+class AbilityBarrier(SurgeAbility):
+
+	# Dragon Hybrid
+	def __init__(self):
+		super().__init__('Barrier', param_headers=[], cost=2)
+
+	def effect(self, round_, caster):
+		target = 1 + (caster % 2)
+		for tkn in round_.tokens[target]:
+			if tkn.get_current_side() == tokens.Token.SIDE0 or tkn.get_current_side() == tokens.Token.SIDE1:
+				tkn.remove()
+
