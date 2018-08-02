@@ -125,4 +125,5 @@ class MindMeld(SurgeAbility):
 			def damage_players_wrapper(round_, player, amount, dmg_type):
 				func(round_, player, amount, dmg_type)
 				round_.damage_player(target, amount, tokens.DMG_MAGIC)
+			return damage_players_wrapper
 		round_.damage_player = decorate_reflect(round_.damage_player)
