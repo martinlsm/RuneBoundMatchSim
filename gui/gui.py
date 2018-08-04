@@ -135,6 +135,27 @@ class PlayerPane:
         ttk.Button(self.frame_low, text='Status').grid(row=1, column=2)
 
 
+class CombatLog:
+
+    def __init__(self, root):
+
+        self.text = Text(root, width=40, height=30)
+        self.text.pack()
+
+        self.text.tag_config('tag_ability', foreground='cyan')
+        self.text.tag_config('tag_enemy', foreground='red')
+        self.text.tag_config('tag_player', foreground='yellow')
+
+        self.text.config(background='dark slate gray', foreground='LightCyan3', font='Courier 12')
+        self.text.insert(1.0, '[Enemy] casts [Spell] on [Player 2]\n')
+        self.text.tag_add("tag_enemy", "1.1", "1.6")
+        self.text.tag_add("tag_ability", "1.15", "1.20")
+        self.text.tag_add('tag_player', '1.26', '1.34')
+
+        self.text.insert(2.0, '[Player 2] dies\n')
+        self.text.tag_add('tag_player', '2.1', '2.9')
+
+
 def apply_style():
     style = ttk.Style()
     style.configure('TLabel',
@@ -158,5 +179,6 @@ if __name__ == '__main__':
     apply_style()
     PlayerPane(root, 1)
     PlayerPane(root, 2)
+    CombatLog(root)
 
     root.mainloop()
