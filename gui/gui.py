@@ -184,6 +184,7 @@ if __name__ == '__main__':
     root = Tk()
     root.title('Runebound Match Simulator')
     root.configure(background='burlywood')
+    root.resizable(False, False)
 
     apply_style()
     PlayerPane(root, 1)
