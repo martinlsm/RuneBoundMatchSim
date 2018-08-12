@@ -23,6 +23,7 @@ class TokenDisplay:
         self.canvas.configure(background='burlywood')
         self.canvas.grid(row=int(index/2), column=index%2)
         self.canvas.bind('<Button-1>', self.on_click)
+        self.index = index
 
         token_type_front = filename_tokens[token_type_front]
         token_type_back = filename_tokens[token_type_back]
@@ -49,6 +50,7 @@ class TokenDisplay:
         if tkn_radius**2 >= (event.x - x_center)**2 + (event.y - y_center)**2:
             self.flip()
             self.draw()
+            combat_log.write('[Token] {} flipped.'.format(self.index), tags=[('tag_player', 1, 6)])
 
     def get_token_filename(self, token_type, is_golden, is_large):
         filename = ''.join([filename_tokens[token_type], '-token'])
@@ -88,14 +90,13 @@ class AbilityButton:
         self.index = index
 
     def on_click(self):
-        print('Ability {} activated!'.format(self.index))
+        combat_log.write('[Ability] {} activated!'.format(self.index), tags=[('tag_ability', 1, 8)])
 
 
 class PlayerPane:
 
     def __init__(self, root, player_index):
         side = LEFT if player_index == 1 else RIGHT
-        print(side, player_index)
         self.root = Frame(root)
         self.root.pack(side=side)
         self.root.configure(background='burlywood')
@@ -141,20 +142,28 @@ class CombatLog:
 
         self.text = Text(root, width=40, height=30)
         self.text.pack()
+        self.text.config()
+        self.text.config(background='dark slate gray', foreground='LightCyan3', font='Courier 12', state=DISABLED)
 
+        self.current_line = 1
         self.text.tag_config('tag_ability', foreground='cyan')
         self.text.tag_config('tag_enemy', foreground='red')
         self.text.tag_config('tag_player', foreground='yellow')
 
-        self.text.config(background='dark slate gray', foreground='LightCyan3', font='Courier 12')
-        self.text.insert(1.0, '[Enemy] casts [Spell] on [Player 2]\n')
-        self.text.tag_add("tag_enemy", "1.1", "1.6")
-        self.text.tag_add("tag_ability", "1.15", "1.20")
-        self.text.tag_add('tag_player', '1.26', '1.34')
-
-        self.text.insert(2.0, '[Player 2] dies\n')
-        self.text.tag_add('tag_player', '2.1', '2.9')
-
+    def write(self, string, newline=True, tags=[]):
+        """
+        Appends text to the combat log.
+        :param string: The text to be written.
+        :param newline: True if the log should insert a newline character after the line, otherwise False.
+        :param tags: A list of tuples with three elements with the format (tag name, line index 1, line index 2)
+        """
+        self.text.config(state=NORMAL)
+        self.text.insert('end', string + ('\n' if newline else ''))
+        for tag in tags:
+            self.text.tag_add(tag[0], '{}.{}'.format(self.current_line, tag[1]), '{}.{}'.format(self.current_line, tag[2]))
+        self.text.see('end')
+        self.text.config(state=DISABLED)
+        self.current_line += 1
 
 def apply_style():
     style = ttk.Style()
@@ -179,6 +188,6 @@ if __name__ == '__main__':
     apply_style()
     PlayerPane(root, 1)
     PlayerPane(root, 2)
-    CombatLog(root)
+    combat_log = CombatLog(root)
 
     root.mainloop()
