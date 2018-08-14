@@ -19,8 +19,28 @@ target_ordering = [
 				  ]
 
 class SurgeAbility:
+	"""
+	Parent class of all surge abilities.
+	This class covers all functionality needed for any token, except the tokens
+	effect itself. The param_headers attribute is a list of all the data the
+	ability needs to execute. After the ability is constructed, the
+	request_params method should be called, which returns a generator of all
+	parameters the ability needs. fill_parameters repeatedly until the ability
+	has all parameters defined. The ability can then be cast properly.
+	"""
 
 	def __init__(self, name, param_headers=[TARGET_PLAYER], cost=1):
+		"""
+		This is the base constructor for all extending sub classes and
+		should not be used directly.
+
+		For param_headers parameter, look at the pre-defined alternatives above.
+
+		Args:
+			name (str): The name of the ability
+			param_headers (list<str>): The parameters the token needs.
+			cost (int): The number of surge symbols needed to cast the ability.
+		"""
 		self.name = name
 		self.cost = cost
 		self.used = False
@@ -28,6 +48,14 @@ class SurgeAbility:
 	
 
 	def fill_parameter(self, param_header, value):
+		"""
+		Defines a parameter for the ability.
+		Call request_params to examine what the ability needs for execution.
+		
+		Args:
+			param_header (str): The parameter's name.
+			value: TODO
+		"""
 		self.params[param_header] = value
 
 
