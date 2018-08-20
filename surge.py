@@ -106,7 +106,7 @@ class AbilityDirectDamage(SurgeAbility):
 
 	def effect(self, round_, caster):
 		target = 1 + (caster % 2)
-		round_.match.damage_player(target, self.amount, self.damage_type)
+		round_.damage_player(target, self.amount, self.damage_type)
 
 
 class AbilityDirectHeal(SurgeAbility):
@@ -157,16 +157,14 @@ class MindMeld(SurgeAbility):
 	def __init__(self):
 		super().__init__('Mind Meld', param_headers=[], cost=2)
 
+    # Check if trigger on enemy getting hit as well?
 	def effect(self, round_, caster):
 		target = 1 + (caster % 2)
-
 		def decorate_reflect(func):
 			def damage_players_wrapper(round_, player, amount, dmg_type):
 				func(round_, player, amount, dmg_type)
-				round_.match.damage_player(target, amount, tokens.DMG_MAGIC)
-
+				round_.damage_player(target, amount, tokens.DMG_MAGIC)
 			return damage_players_wrapper
-
 		round_.damage_player = decorate_reflect(round_.damage_player)
 
 
@@ -220,4 +218,4 @@ class AbilityCleave(SurgeAbility):
 			sum += tkn.get_current_side().value
 			tkn.spend()
 		target = 1 + (caster % 2)
-		round_.match.damage_player(target, amount=sum, dmg_type=tokens.DMG_SKULL)
+		round_.damage_player(target, amount=sum, dmg_type=tokens.DMG_SKULL)

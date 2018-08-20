@@ -1,4 +1,5 @@
 import player
+import surge
 
 class MasterThorn(player.Hero):
 

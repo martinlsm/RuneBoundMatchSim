@@ -2,6 +2,7 @@ from match import *
 from player import *
 from tokens import *
 from enemies import *
+from heroes import *
 
 
 def print_all_tokens(round_):
@@ -13,9 +14,7 @@ def print_all_tokens(round_):
 			print('\t\tside1: {}'.format(tkn.sides[1]))
 			print('\t\tActive side: {}'.format(tkn.active_side))
 
-if __name__ == '__main__':
-
-
+def debug_claw():
     p1 = Dreadbringer()
     p2 = UndeadHorde()
 
@@ -32,4 +31,23 @@ if __name__ == '__main__':
 
     print_all_tokens(round_)
 
+
+def debug_mind_meld():
+    thorn = MasterThorn()
+    thorn.add_token((TokenSide(SURGE, 2, False), TokenSide(SURGE, 2, False)))
+    hybrid = DragonHybrid(act=2)
+
+    m = Match(thorn, hybrid)
+    round_ = Round(m)
+
+    round_.both_cast_tokens()
+
+    ability = round_.get_ability(1, [0], 0)
+    ability.cast(round_, 1)
+    print_all_tokens(round_)
+
+
     import pdb; pdb.set_trace()
+
+if __name__ == '__main__':
+    debug_mind_meld()
