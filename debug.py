@@ -1,6 +1,7 @@
 from match import *
 from player import *
 from tokens import *
+from enemies import *
 
 
 def print_all_tokens(round_):
@@ -12,12 +13,23 @@ def print_all_tokens(round_):
 			print('\t\tside1: {}'.format(tkn.sides[1]))
 			print('\t\tActive side: {}'.format(tkn.active_side))
 
-p1 = Player('Hero', 10)
-p2 = Enemy('Enemy', 8, act=1)
+if __name__ == '__main__':
 
-p1.add_token((TokenSide(DMG_PHYS, 1, True), TokenSide(SHIELD, 2, False)))
-p1.add_token(( TokenSide(SHIELD, 2, False), TokenSide(SURGE , 1, False)))
-p1.add_token(( TokenSide(AGILITY, 1, False), TokenSide(SHIELD, 1, True)))
 
-m = Match(p1, p2)
-r = Round(m)
+    p1 = Dreadbringer()
+    p2 = UndeadHorde()
+
+    m = Match(p1, p2)
+    round_ = Round(m)
+
+    round_.both_cast_tokens()
+
+    while round_.tokens[1][3].active_side != 1 or round_.tokens[2][1].active_side != 0:
+        round_.both_cast_tokens()
+
+    ability = round_.get_ability(1, [3], 0)
+    ability.cast(round_, 1)
+
+    print_all_tokens(round_)
+
+    import pdb; pdb.set_trace()

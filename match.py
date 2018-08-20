@@ -1,7 +1,4 @@
-import random
-
 import tokens
-
 
 STATUS_SILENCED = 'silenced'
 
@@ -22,66 +19,59 @@ def select_by_category(list_of_tokens, indices, category):
 
 
 class Match:
-	
 	def __init__(self, player1, player2):
-		self.players = {1:player1 , 2:player2}
-	
+		self.players = {1: player1, 2: player2}
 
-	def resolve_direct_abilites(self):
+	def resolve_direct_abilities(self):
 		pass
 
-	
 	def resolve_flee_phase(self, p1_try_retreat, p2_try_retreat):
 		pass
-	
-	
+
 	def check_for_winner(self):
 		"""
-			0 : match ended as draw
-			1 : player 1 won the match
-			2 : player 2 won the match
-		   -1 : match is not yet finished
+		0 : match ended as draw
+		1 : player 1 won the match
+		2 : player 2 won the match
+		-1 : match is not yet finished
 		"""
 		if self.players[1].current_hp <= 0 and self.players[2].current_hp <= 0:
-		    return 0
+			return 0
 		if self.players[2].current_hp <= 0:
-		    return 1
+			return 1
 		if self.players[1].current_hp <= 0:
-		    return 2
+			return 2
 		else:
-		    return -1
+			return -1
+
+	def damage_player(self, player_index, amount, dmg_type):
+		self.players[player_index].reduce_hp(amount)
+
+	def heal_player(self, player_index, amount):
+		self.players[player_index].restore_hp(amount)
 
 
 class Round:
-
 	def __init__(self, match):
 		self.match = match
+
 		def _setup_tokens(player):
 			return [tokens.Token(*sides) for sides in player.token_sides]
-		self.tokens = {1:_setup_tokens(match.players[1]), 2:_setup_tokens(match.players[2])}
-		self.status_conditions = {1:[], 2:[]}
 
+		self.tokens = {1: _setup_tokens(match.players[1]), 2: _setup_tokens(match.players[2])}
+		self.status_conditions = {1: [], 2: []}
 
 	def both_cast_tokens(self):
 		def _cast_all(token_list):
 			for tkn in token_list:
 				tkn.cast()
+
 		_cast_all(self.tokens[1])
 		_cast_all(self.tokens[2])
 
+	def apply_status_condition(self, player, status):
+		self.status_conditions[player].append(status)
 
-	def damage_player(self, player_index, amount, dmg_type):
-		self.players[player_index].reduce_hp(amount)
-
-	
-	def heal_player(self, player_index, amount):
-		self.players[player_index].restore_hp(amount)
-
-
-	def apply_status_condition(player, status):
-		self.status_conditions[player] = status
-
-	
 	def agility_token(self, caster, target, spent_token_index, target_token_index):
 		"""Attempts to resolve an agility symbol which flips or recasts a token.
 
@@ -101,7 +91,6 @@ class Round:
 			self.tokens[target][target_token_index].cast(recast=True)
 		self.tokens[caster][spent_token_index].spend()
 
-
 	def damage_token(self, caster, spent_token_indices, dmg_category, target_block_indices=[], blockable=True):
 		"""Attempts to resolve a number of damage tokens of the same type to damage the opposing player.
 
@@ -117,21 +106,18 @@ class Round:
 		block_tokens = []
 		if blockable:
 			block_tokens = select_by_category(self.tokens[target], target_block_indices, tokens.SHIELD)
-		self.damage_player(target, max(0, sum(dmg_tokens) - sum(block_tokens)), dmg_category)
+		self.match.damage_player(target, max(0, sum(dmg_tokens) - sum(block_tokens)), dmg_category)
 		for tkn in dmg_tokens + block_tokens:
 			tkn.spend()
-	
 
 	def double_token(self, caster, spent_token_index, target_token_index):
 		if validate_category([self.tokens[caster][spent_token_index]], tokens.DOUBLE) \
-	      and self.tokens[caster][target_token_index].active_side in range(2) \
-		  and target_token_index != spent_token_index:
+				and self.tokens[caster][target_token_index].active_side in range(2) \
+				and target_token_index != spent_token_index:
 			self.tokens[caster][target_token_index].double()
 			self.tokens[caster][spent_token_index].spend()
 
-	
 	def get_ability(self, caster, spent_token_indices, surge_index):
-		pc = self.match.players[caster]
 		ability = self.match.players[caster].surge_abilities[surge_index]
 		tkns = select_by_category(self.tokens[caster], spent_token_indices, tokens.SURGE)
 		if sum(tkns) >= ability.cost:
